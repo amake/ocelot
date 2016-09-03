@@ -222,6 +222,8 @@ public class SegmentTextCell extends JTextPane {
         StyledDocument doc = this.getStyledDocument();
         try {
             for (int i = 0; i < styledText.size(); i += 2) {
+                System.out.println("Inserting " + styledText.get(i) + " at " + doc.getLength() + " with style "
+                        + styledText.get(i + 1));
                 doc.insertString(doc.getLength(), styledText.get(i),
                         doc.getStyle(styledText.get(i + 1)));
             }
@@ -365,11 +367,14 @@ public class SegmentTextCell extends JTextPane {
             SegmentTextCell cell = (SegmentTextCell) c;
             SegmentVariantSelection selection = new SegmentVariantSelection(cell.row, cell.v.createCopy(),
                     cell.getSelectionStart(), cell.getSelectionEnd());
+            System.out.println("Made transferable: " + selection.getDisplayText());
             return new SegmentVariantTransferable(selection);
         }
 
         @Override
         protected void exportDone(JComponent source, Transferable data, int action) {
+            System.out.println("exportDone: " + data);
+
             if (action == TransferHandler.MOVE) {
                 SegmentTextCell cell = (SegmentTextCell) source;
                 SegmentVariantSelection emptySelection = new SegmentVariantSelection(-1, cell.v.createEmptyTarget(), 0,
@@ -381,6 +386,7 @@ public class SegmentTextCell extends JTextPane {
 
         @Override
         public boolean canImport(TransferSupport support) {
+            System.out.println("canImport: " + support);
             return support.isDataFlavorSupported(SELECTION_FLAVOR)
                     || support.isDataFlavorSupported(DataFlavor.stringFlavor);
         }
@@ -390,6 +396,7 @@ public class SegmentTextCell extends JTextPane {
             if (!canImport(support)) {
                 return false;
             }
+            System.out.println("importData: " + support);
             SegmentTextCell cell = (SegmentTextCell) support.getComponent();
             Transferable trfr = support.getTransferable();
             if (support.isDataFlavorSupported(SELECTION_FLAVOR)) {
@@ -407,6 +414,7 @@ public class SegmentTextCell extends JTextPane {
             if (support.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                 try {
                     String str = trfr.getTransferData(DataFlavor.stringFlavor).toString();
+                    System.out.println("Replacing " + cell.getSelectedText() + " with string " + str);
                     cell.replaceSelection(str);
                     return true;
                 } catch (UnsupportedFlavorException | IOException e) {
