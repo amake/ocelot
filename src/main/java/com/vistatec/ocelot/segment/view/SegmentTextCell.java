@@ -379,10 +379,15 @@ public class SegmentTextCell extends JTextPane {
 
             if (action == TransferHandler.MOVE) {
                 SegmentTextCell cell = (SegmentTextCell) source;
-                SegmentVariantSelection emptySelection = new SegmentVariantSelection(-1, cell.v.createEmptyTarget(), 0,
-                        0);
-                cell.v.replaceSelection(cell.getSelectionStart(), cell.getSelectionEnd(), emptySelection);
-                cell.syncModelToView();
+                try {
+                    SegmentVariantSelection sel = (SegmentVariantSelection) data.getTransferData(SELECTION_FLAVOR);
+                    SegmentVariantSelection emptySelection = new SegmentVariantSelection(-1, cell.v.createEmptyTarget(),
+                            0, 0);
+                    cell.v.replaceSelection(sel.getSelectionStart(), sel.getSelectionEnd(), emptySelection);
+                    cell.syncModelToView();
+                } catch (UnsupportedFlavorException | IOException e) {
+                    LOG.debug("", e);
+                }
             }
         }
 
