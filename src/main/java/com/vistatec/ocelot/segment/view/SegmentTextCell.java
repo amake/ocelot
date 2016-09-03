@@ -437,7 +437,7 @@ public class SegmentTextCell extends JTextPane {
 
     static class SegmentVariantTransferable implements Transferable {
 
-        private static final DataFlavor[] FLAVORS = new DataFlavor[] { SELECTION_FLAVOR, DataFlavor.stringFlavor };
+        private static final DataFlavor[] FLAVORS = { SELECTION_FLAVOR, DataFlavor.stringFlavor };
 
         private final SegmentVariantSelection selection;
 
