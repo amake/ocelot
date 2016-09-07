@@ -251,6 +251,9 @@ public class SegmentTextCell extends JTextPane {
     private void syncModelToView() {
         SegmentVariant tmp = v;
         try {
+            // We temporarily set v to null here to get around the
+            // SegmentFilter, which will prevent us from clearing the text if
+            // there are tags.
             v = null;
             StyledDocument doc = getStyledDocument();
             doc.remove(0, doc.getLength());
