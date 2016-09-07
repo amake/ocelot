@@ -63,6 +63,7 @@ import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -146,6 +147,12 @@ public class SegmentView extends JScrollPane implements RuleListener,
 	private static final long serialVersionUID = 1L;
 
 	private static Logger LOG = LoggerFactory.getLogger(SegmentView.class);
+
+    private static final String TAG_VALIDATION_ERROR_MESSAGE = "This segment's tags are in an "
+            + "inconsistent state and can't be saved. Do you want to discard your work, or keep editing?";
+    private static final String TAG_VALIDATION_ERROR_TITLE = "Tag Error";
+    private static final String TAG_VALIDATION_BUTTON_CONTINUE = "Continue";
+    private static final String TAG_VALIDATION_BUTTON_DISCARD = "Discard";
 
 	protected SegmentTableModel segmentTableModel;
 	protected SegmentViewTable sourceTargetTable;
@@ -1214,7 +1221,17 @@ public class SegmentView extends JScrollPane implements RuleListener,
 
         @Override
         public boolean stopCellEditing() {
-            return editorComponent.canStopEditing() && super.stopCellEditing();
+            if (!editorComponent.canStopEditing()) {
+                int response = JOptionPane.showOptionDialog(SegmentView.this, TAG_VALIDATION_ERROR_MESSAGE,
+                        TAG_VALIDATION_ERROR_TITLE, JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null,
+                        new String[] { TAG_VALIDATION_BUTTON_CONTINUE, TAG_VALIDATION_BUTTON_DISCARD },
+                        TAG_VALIDATION_BUTTON_CONTINUE);
+                if (response == 1) {
+                    cancelCellEditing();
+                }
+                return false;
+            }
+            return super.stopCellEditing();
         }
 	}
 
