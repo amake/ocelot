@@ -386,6 +386,9 @@ public class SegmentTextCell extends JTextPane {
             if (action == TransferHandler.MOVE) {
                 SegmentTextCell cell = (SegmentTextCell) source;
                 try {
+                    // TODO: This approach doesn't work when drag-and-dropping a
+                    // selection backwards (to a lower index) because the region
+                    // we then try to replace is no longer correct. Fix this.
                     SegmentVariantSelection sel = (SegmentVariantSelection) data.getTransferData(SELECTION_FLAVOR);
                     SegmentVariantSelection emptySelection = new SegmentVariantSelection(-1, cell.v.createEmptyTarget(),
                             0, 0);
