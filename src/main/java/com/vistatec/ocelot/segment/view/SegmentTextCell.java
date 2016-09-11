@@ -575,21 +575,40 @@ public class SegmentTextCell extends JTextPane {
                 doContextPopup(e.getPoint());
             }
         }
+
+        void doContextPopup(Point p) {
+            JPopupMenu menu = makeContextPopup(viewToModel(p));
+            menu.show(SegmentTextCell.this, p.x, p.y);
+        }
     }
 
-    void doContextPopup(Point p) {
+    JPopupMenu makeContextPopup(final int insertionPoint) {
         final List<CodeAtom> missing = v.getMissingTags(vOrig);
         JPopupMenu menu = new JPopupMenu();
-        JMenuItem restoreAllItem = menu.add("Restore All Missing Tags");
-        restoreAllItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int offset = getCaretPosition();
-                v.replaceSelection(offset, offset, missing);
-                syncModelToView();
-            }
-        });
-        restoreAllItem.setEnabled(!missing.isEmpty());
-        menu.show(SegmentTextCell.this, p.x, p.y);
+        for (final CodeAtom atom : missing) {
+            JMenuItem restoreOneItem = menu.add("Restore Missing Tag: " + atom.getData());
+            restoreOneItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    v.replaceSelection(insertionPoint, insertionPoint, Arrays.asList(atom));
+                    syncModelToView();
+                }
+            });
+        }
+        if (missing.size() != 1) {
+            // Only offer Restore All if there are zero tags (to make the
+            // feature more visible) or if there are multiple tags. The
+            // single-tag case is handled above.
+            JMenuItem restoreAllItem = menu.add("Restore All Missing Tags");
+            restoreAllItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    v.replaceSelection(insertionPoint, insertionPoint, missing);
+                    syncModelToView();
+                }
+            });
+            restoreAllItem.setEnabled(!missing.isEmpty());
+        }
+        return menu;
     }
 }
