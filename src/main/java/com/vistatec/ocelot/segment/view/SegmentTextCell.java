@@ -565,32 +565,33 @@ public class SegmentTextCell extends JTextPane {
         @Override
         public void mousePressed(MouseEvent e) {
             if (e.isPopupTrigger()) {
-                doContextPopup(e.getPoint());
+                doContextPopup(e.getComponent(), e.getPoint());
             }
         }
 
         @Override
         public void mouseClicked(MouseEvent e) {
             if (e.isPopupTrigger()) {
-                doContextPopup(e.getPoint());
+                doContextPopup(e.getComponent(), e.getPoint());
             }
         }
 
-        void doContextPopup(Point p) {
+        void doContextPopup(Component c, Point p) {
             JPopupMenu menu = makeContextPopup(viewToModel(p));
-            menu.show(SegmentTextCell.this, p.x, p.y);
+            menu.show(c, p.x, p.y);
         }
     }
 
-    JPopupMenu makeContextPopup(final int insertionPoint) {
+    JPopupMenu makeContextPopup(int insertionPoint) {
         final List<CodeAtom> missing = v.getMissingTags(vOrig);
+        final int correctedPoint = v.findSelectionEnd(insertionPoint);
         JPopupMenu menu = new JPopupMenu();
         for (final CodeAtom atom : missing) {
             JMenuItem restoreOneItem = menu.add("Restore Missing Tag: " + atom.getData());
             restoreOneItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    v.replaceSelection(insertionPoint, insertionPoint, Arrays.asList(atom));
+                    v.replaceSelection(correctedPoint, correctedPoint, Arrays.asList(atom));
                     syncModelToView();
                 }
             });
@@ -603,7 +604,7 @@ public class SegmentTextCell extends JTextPane {
             restoreAllItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    v.replaceSelection(insertionPoint, insertionPoint, missing);
+                    v.replaceSelection(correctedPoint, correctedPoint, missing);
                     syncModelToView();
                 }
             });
