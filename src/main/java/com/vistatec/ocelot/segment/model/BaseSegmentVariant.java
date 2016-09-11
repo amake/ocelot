@@ -128,7 +128,10 @@ protected List<HighlightData> highlightDataList;
 				textToStyle.add(atom.getData());
             		textToStyle.add(atom.getTextStyle());
 			}
-            } else {
+            } else if (atom instanceof PositionAtom) {
+                // Skip
+            }
+            else {
             	textToStyle.add(atom.getData());
 			textToStyle.add(atom.getTextStyle());
 		}
@@ -183,6 +186,16 @@ protected List<HighlightData> highlightDataList;
 		}
 		return codes;
 	}
+
+    public PositionAtom createPosition(int offset) {
+        List<SegmentAtom> atoms = Lists.newArrayList();
+        atoms.addAll(getAtomsForRange(0, offset));
+        PositionAtom position = new PositionAtom(this);
+        atoms.add(position);
+        atoms.addAll(getAtomsForRange(offset, getLength()));
+        setAtoms(atoms);
+        return position;
+    }
 
 	@Override
 	public void replaceSelection(int selectionStart, int selectionEnd,
