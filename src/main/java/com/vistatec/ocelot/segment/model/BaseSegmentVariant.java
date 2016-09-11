@@ -2,6 +2,7 @@ package com.vistatec.ocelot.segment.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -195,9 +196,18 @@ protected List<HighlightData> highlightDataList;
 				rsv.getSelectionStart(),
 				rsv.getSelectionEnd() - rsv.getSelectionStart());
 
-		List<SegmentAtom> newAtoms = Lists.newArrayList();
+        replaceSelection(selectionStart, selectionEnd, replaceAtoms);
+    }
+
+    @Override
+    public void replaceSelection(int selectionStart, int selectionEnd, List<? extends SegmentAtom> atoms) {
+        if (selectionStart == selectionEnd && atoms.isEmpty()) {
+            // No-op
+            return;
+        }
+        List<SegmentAtom> newAtoms = Lists.newArrayList();
 		newAtoms.addAll(getAtomsForRange(0, selectionStart));
-		newAtoms.addAll(replaceAtoms);
+        newAtoms.addAll(atoms);
 		newAtoms.addAll(getAtomsForRange(selectionEnd, getLength()));
 		
 		setAtoms(newAtoms);
@@ -232,8 +242,7 @@ protected List<HighlightData> highlightDataList;
 
     @Override
     public void clearSelection(int selectionStart, int selectionEnd) {
-        SegmentVariantSelection emptySelection = new SegmentVariantSelection(-1, createEmptyTarget(), 0, 0);
-        replaceSelection(selectionStart, selectionEnd, emptySelection);
+        replaceSelection(selectionStart, selectionEnd, Collections.<SegmentAtom> emptyList());
     }
 
     @Override
@@ -258,6 +267,24 @@ protected List<HighlightData> highlightDataList;
             }
         }
         return true;
+    }
+
+    @Override
+    public List<CodeAtom> getMissingTags(SegmentVariant sv) {
+        List<CodeAtom> theseCodes = findCodes(getAtoms());
+        List<CodeAtom> thoseCodes = findCodes(sv.getAtoms());
+        
+        Set<String> codeIds = new HashSet<String>();
+        for (CodeAtom code : theseCodes) {
+            codeIds.add(code.getId());
+        }
+        List<CodeAtom> missing = Lists.newArrayList();
+        for (CodeAtom code : thoseCodes) {
+            if (!codeIds.contains(code.getId())) {
+                missing.add(code);
+            }
+        }
+        return missing;
     }
 
 	/**

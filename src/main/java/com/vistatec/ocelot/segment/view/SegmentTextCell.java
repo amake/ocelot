@@ -34,7 +34,10 @@ import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputMethodEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,6 +46,8 @@ import java.util.List;
 
 import javax.swing.DropMode;
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
 import javax.swing.TransferHandler;
 import javax.swing.event.CaretEvent;
@@ -145,6 +150,7 @@ public class SegmentTextCell extends JTextPane {
         setTransferHandler(new TagAwareTransferHandler());
         setDragEnabled(true);
         setDropMode(DropMode.INSERT);
+        addMouseListener(new ContextMenuListener());
     }
 
     private SegmentTextCell() {
@@ -553,5 +559,37 @@ public class SegmentTextCell extends JTextPane {
 
     public boolean canStopEditing() {
         return v == null || !v.needsValidation() || v.validateAgainst(vOrig);
+    }
+
+    class ContextMenuListener extends MouseAdapter {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if (e.isPopupTrigger()) {
+                doContextPopup(e.getPoint());
+            }
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.isPopupTrigger()) {
+                doContextPopup(e.getPoint());
+            }
+        }
+    }
+
+    void doContextPopup(Point p) {
+        final List<CodeAtom> missing = v.getMissingTags(vOrig);
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem restoreAllItem = menu.add("Restore All Missing Tags");
+        restoreAllItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int offset = getCaretPosition();
+                v.replaceSelection(offset, offset, missing);
+                syncModelToView();
+            }
+        });
+        restoreAllItem.setEnabled(!missing.isEmpty());
+        menu.show(SegmentTextCell.this, p.x, p.y);
     }
 }
