@@ -1145,15 +1145,9 @@ public class SegmentView extends JScrollPane implements RuleListener,
 		}
 
         @Override
-        public void cancelCellEditing() {
+        public void removeCellEditorListener(CellEditorListener l) {
+            super.removeCellEditorListener(l);
             ToolTipManager.sharedInstance().unregisterComponent(editorComponent);
-            super.cancelCellEditing();
-        }
-
-        @Override
-        public boolean stopCellEditing() {
-            ToolTipManager.sharedInstance().unregisterComponent(editorComponent);
-            return super.stopCellEditing();
         }
 	}
 
@@ -1245,14 +1239,18 @@ public class SegmentView extends JScrollPane implements RuleListener,
                 }
                 return false;
             }
-            ToolTipManager.sharedInstance().unregisterComponent(editorComponent);
             return super.stopCellEditing();
         }
 
         @Override
-        public void cancelCellEditing() {
+        public void removeCellEditorListener(CellEditorListener l) {
+            // This appears to be the only way for the TableCellEditor to find
+            // out that editing has ended in the case of the user invoking the
+            // "cancel" action (by e.g. pressing Esc): JTable.removeEditor() is
+            // called directly in BasicTableUI.Actions.actionPerformed(). Thus
+            // we do cleanup here.
+            super.removeCellEditorListener(l);
             ToolTipManager.sharedInstance().unregisterComponent(editorComponent);
-            super.cancelCellEditing();
         }
 	}
 
