@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import com.vistatec.ocelot.segment.model.BaseSegmentVariant;
 import com.vistatec.ocelot.segment.model.CodeAtom;
 import com.vistatec.ocelot.segment.model.HighlightData;
+import com.vistatec.ocelot.segment.model.PositionAtom;
 import com.vistatec.ocelot.segment.model.SegmentAtom;
 import com.vistatec.ocelot.segment.model.SegmentVariant;
 import com.vistatec.ocelot.segment.model.TextAtom;
@@ -221,6 +222,8 @@ public class FragmentVariant extends BaseSegmentVariant {
                 CodeAtom codeAtom = (CodeAtom) atom;
                 copyAtoms.add(new CodeAtom(codeAtom.getId(),
                         codeAtom.getData(), codeAtom.getVerboseData()));
+            } else if (atom instanceof PositionAtom) {
+                copyAtoms.add(new PositionAtom(this));
             }
         }
         return copyAtoms;
