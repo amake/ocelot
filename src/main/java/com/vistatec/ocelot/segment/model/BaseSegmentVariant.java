@@ -243,9 +243,6 @@ protected List<HighlightData> highlightDataList;
 
     @Override
     public boolean validateAgainst(SegmentVariant sv) {
-        if (sv == null) {
-            return false;
-        }
         List<CodeAtom> theseCodes = findCodes(getAtoms());
         List<CodeAtom> thoseCodes = findCodes(sv.getAtoms());
         if (theseCodes.size() != thoseCodes.size()) {
