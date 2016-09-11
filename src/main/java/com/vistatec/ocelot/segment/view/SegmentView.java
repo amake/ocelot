@@ -70,6 +70,7 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
@@ -85,8 +86,6 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
-
-import net.sf.okapi.common.LocaleId;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,6 +136,8 @@ import com.vistatec.ocelot.segment.model.okapi.FragmentVariant;
 import com.vistatec.ocelot.segment.model.okapi.Note;
 import com.vistatec.ocelot.segment.model.okapi.Notes;
 import com.vistatec.ocelot.xliff.XLIFFDocument;
+
+import net.sf.okapi.common.LocaleId;
 
 /**
  * Table view containing the source and target segments extracted from the
@@ -1124,6 +1125,7 @@ public class SegmentView extends JScrollPane implements RuleListener,
 					fireEditingStopped();
 				}
 			});
+            ToolTipManager.sharedInstance().registerComponent(editorComponent);
 
 			return editorComponent;
 		}
@@ -1142,6 +1144,17 @@ public class SegmentView extends JScrollPane implements RuleListener,
 			return false;
 		}
 
+        @Override
+        public void cancelCellEditing() {
+            ToolTipManager.sharedInstance().unregisterComponent(editorComponent);
+            super.cancelCellEditing();
+        }
+
+        @Override
+        public boolean stopCellEditing() {
+            ToolTipManager.sharedInstance().unregisterComponent(editorComponent);
+            return super.stopCellEditing();
+        }
 	}
 
 	public class SegmentEditor extends AbstractCellEditor implements
@@ -1188,6 +1201,7 @@ public class SegmentView extends JScrollPane implements RuleListener,
 				        });
 				editingRow = row;
 				editorComponent.setFont(font);
+                ToolTipManager.sharedInstance().registerComponent(editorComponent);
 			}
 			eventQueue.post(new OcelotEditingEvent(
 			        OcelotEditingEvent.Type.START_EDITING));
@@ -1231,7 +1245,14 @@ public class SegmentView extends JScrollPane implements RuleListener,
                 }
                 return false;
             }
+            ToolTipManager.sharedInstance().unregisterComponent(editorComponent);
             return super.stopCellEditing();
+        }
+
+        @Override
+        public void cancelCellEditing() {
+            ToolTipManager.sharedInstance().unregisterComponent(editorComponent);
+            super.cancelCellEditing();
         }
 	}
 
