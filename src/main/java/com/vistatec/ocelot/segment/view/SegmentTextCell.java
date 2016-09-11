@@ -310,7 +310,7 @@ public class SegmentTextCell extends JTextPane {
     public String getToolTipText(MouseEvent event) {
         Point p = event.getPoint();
         int offset = viewToModel(p);
-        if (v.containsTag(offset, 0)) {
+        if (v != null && v.containsTag(offset, 0)) {
             SegmentAtom atom = v.getAtomAt(offset);
             if (atom instanceof CodeAtom) {
                 return ((CodeAtom) atom).getVerboseData();
