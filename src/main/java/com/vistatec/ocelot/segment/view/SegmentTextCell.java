@@ -34,6 +34,7 @@ import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -684,9 +685,12 @@ public class SegmentTextCell extends JTextPane {
     }
     
     void setFrameLocation() {
-        menuFrame.setVisible(isShowing() && !getVisibleRect().isEmpty());
-        Container parent = getParent();
-        if (parent.isShowing()) {
+        Rectangle visible = getVisibleRect();
+        boolean showFrame = isShowing() && !visible.isEmpty() && visible.y == 0
+                && visible.height >= menuFrame.getHeight();
+        menuFrame.setVisible(showFrame);
+        if (showFrame) {
+            Container parent = getParent();
             Point p = parent.getLocationOnScreen();
             p.translate(parent.getWidth() + 10, 0);
             menuFrame.setLocation(p);
