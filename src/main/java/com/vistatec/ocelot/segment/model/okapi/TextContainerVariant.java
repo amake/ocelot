@@ -72,7 +72,6 @@ public class TextContainerVariant extends OkapiSegmentVariant {
     }
 
     public TextContainer getTextContainer() {
-        writeAtoms(atoms, tc);
         return tc;
     }
 
@@ -107,6 +106,7 @@ public class TextContainerVariant extends OkapiSegmentVariant {
     @Override
     public void setAtoms(List<SegmentAtom> atoms) {
         this.atoms = atoms;
+        writeAtoms(atoms, tc);
     }
 
     private void writeAtoms(List<SegmentAtom> atoms, TextContainer tc) {
@@ -138,11 +138,7 @@ public class TextContainerVariant extends OkapiSegmentVariant {
         // where equality was checked. Since codes are currently invariant
         // in Ocelot, it will work for now, but break if we ever allow real
         // editing.
-        // XXX AMK Now that TextContainerVariant uses a list of atoms as a
-        // backing store instead of storing everything in the TextContainer
-        // directly, this check looks very cumbersome. FragmentVariant gets away
-        // with not having a custom equals(); can we do that here too?
-        return getTextContainer().getCodedText().equals(((TextContainerVariant) o).getTextContainer().getCodedText());
+        return tc.getCodedText().equals(((TextContainerVariant) o).getTextContainer().getCodedText());
     }
 
     @Override
