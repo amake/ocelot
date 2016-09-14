@@ -61,7 +61,7 @@ public class TextContainerVariant extends OkapiSegmentVariant {
     @Override
     public TextContainerVariant createCopy() {
     	
-        return new TextContainerVariant(getTextContainer());
+        return new TextContainerVariant(getTextContainer().clone());
     }
 
     @Override
