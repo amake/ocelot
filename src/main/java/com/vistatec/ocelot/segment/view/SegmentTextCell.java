@@ -412,6 +412,7 @@ public class SegmentTextCell extends JTextPane {
     static class TagAwareTransferHandler extends TransferHandler {
 
         private static final long serialVersionUID = 1L;
+        private boolean shouldRemove;
 
         @Override
         public int getSourceActions(JComponent c) {
@@ -421,6 +422,7 @@ public class SegmentTextCell extends JTextPane {
         @Override
         protected Transferable createTransferable(JComponent c) {
             SegmentTextCell cell = (SegmentTextCell) c;
+            shouldRemove = true;
             return new SegmentVariantTransferable("" + cell.row, cell.v, cell.getSelectionStart(),
                     cell.getSelectionEnd());
         }
@@ -429,7 +431,7 @@ public class SegmentTextCell extends JTextPane {
         protected void exportDone(JComponent source, Transferable data, int action) {
             System.out.println("exportDone: " + data);
             SegmentTextCell cell = (SegmentTextCell) source;
-            if (action == TransferHandler.MOVE) {
+            if (shouldRemove && action == TransferHandler.MOVE) {
                 // Only clear the original selection here if we didn't
                 // already handle it in importData().
                 ((SegmentVariantTransferable) data).removeText();
@@ -476,6 +478,12 @@ public class SegmentTextCell extends JTextPane {
                     // Check to make sure we're not pasting into any tags
                     if (cell.v.containsTag(start, end - start)) {
                         return false;
+                    }
+                    boolean isDragMove = support.isDrop() && support.getDropAction() == TransferHandler.MOVE;
+                    if (isDragMove && start > sel.getSelectionStart() && start < sel.getSelectionEnd()) {
+                        // Don't remove source text if we are dropping within
+                        // the initial selection.
+                        shouldRemove = false;
                     }
                     cell.v.replaceSelection(start, end, sel);
                     cell.syncModelToView();
