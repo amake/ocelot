@@ -38,12 +38,18 @@ protected List<HighlightData> highlightDataList;
 		int end = start + length;
 
 		for (SegmentAtom atom : getAtoms()) {
+            if (index == start && atom instanceof PositionAtom) {
+                // Catch PositionAtom at the very beginning of the range.
+                atomsForRange.add(atom);
+            }
 			if (index >= end) {
 				return atomsForRange;
 			}
 			if (index + atom.getLength() > start) {
 				if (atom instanceof CodeAtom) {
 					atomsForRange.add(atom);
+                } else if (atom instanceof PositionAtom) {
+                    atomsForRange.add(atom);
 				} else {
 					int min = Math.max(start - index, 0);
 					int max = Math.min(end - index, atom.getData().length());
@@ -187,6 +193,7 @@ protected List<HighlightData> highlightDataList;
 		return codes;
 	}
 
+    @Override
     public PositionAtom createPosition(int offset) {
         List<SegmentAtom> atoms = Lists.newArrayList();
         atoms.addAll(getAtomsForRange(0, offset));

@@ -223,7 +223,8 @@ public class FragmentVariant extends BaseSegmentVariant {
                 copyAtoms.add(new CodeAtom(codeAtom.getId(),
                         codeAtom.getData(), codeAtom.getVerboseData()));
             } else if (atom instanceof PositionAtom) {
-                copyAtoms.add(new PositionAtom(this));
+                // Don't copy position atoms because no one will have a handle
+                // on the new atom so it will be useless.
             }
         }
         return copyAtoms;
