@@ -30,6 +30,7 @@ package com.vistatec.ocelot.segment.model.okapi;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -470,5 +471,29 @@ public class TestTextContainerSegmentVariant {
         }
         assertEquals(0, start.getPosition());
         assertEquals(0, end.getPosition());
+    }
+
+    @Test
+    public void testCopy() {
+        // A < b 1 > B < / b 1 >
+        // 0 1 2 3 4 5 6 7 8 9 10
+
+        assertEquals(tcv, tcv.createCopy());
+
+        SegmentVariantSelection sel = new SegmentVariantSelection("", tcv.createCopy(), 1, 5);
+        tcv.replaceSelection(tcv.getLength(), tcv.getLength(), sel);
+        assertEquals("A<b1>B</b1><b1>", tcv.getDisplayText());
+
+        // Copying TextContainerVariants with modified codes may result in an
+        // unequal copy due to automatic code rebalancing.
+        // TODO: Change how createCopy() works?
+        assertNotEquals(tcv, tcv.createCopy());
+
+        sel = new SegmentVariantSelection("", tcv.createCopy(), 6, 10);
+        tcv.replaceSelection(tcv.getLength(), tcv.getLength(), sel);
+        assertEquals("A<b1>B</b1><b1></b1>", tcv.getDisplayText());
+
+        assertEquals(tcv, tcv.createCopy());
+        assertEquals(tcv.getDisplayText(), tcv.createCopy().getDisplayText());
     }
 }
