@@ -223,7 +223,7 @@ protected List<HighlightData> highlightDataList;
         newAtoms.addAll(atoms);
 		newAtoms.addAll(getAtomsForRange(selectionEnd, getLength()));
 		
-		setAtoms(newAtoms);
+        setAtoms(mergeNeighboringTextAtoms(newAtoms));
         dirty = true;
 
 //		// Clean up codes that may be duplicates
