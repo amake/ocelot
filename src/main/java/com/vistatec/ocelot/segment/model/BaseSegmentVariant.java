@@ -294,13 +294,9 @@ protected List<HighlightData> highlightDataList;
         List<CodeAtom> theseCodes = findCodes(getAtoms());
         List<CodeAtom> thoseCodes = findCodes(sv.getAtoms());
         
-        Set<String> codeIds = new HashSet<String>();
-        for (CodeAtom code : theseCodes) {
-            codeIds.add(code.getId());
-        }
         List<CodeAtom> missing = Lists.newArrayList();
         for (CodeAtom code : thoseCodes) {
-            if (!codeIds.contains(code.getId())) {
+            if (!theseCodes.contains(code)) {
                 missing.add(code);
             }
         }
