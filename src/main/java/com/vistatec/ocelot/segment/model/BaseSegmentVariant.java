@@ -574,4 +574,9 @@ protected List<HighlightData> highlightDataList;
 //    	}
     	return transEnrichment;
     }
+
+    @Override
+    public String toString() {
+        return getDisplayText();
+    }
 }
