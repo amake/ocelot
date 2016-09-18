@@ -471,6 +471,11 @@ public class TestTextContainerSegmentVariant {
         }
         assertEquals(0, start.getPosition());
         assertEquals(0, end.getPosition());
+
+        // Attempting to place a position inside a code atom will result in the
+        // position sliding to the end of the code.
+        PositionAtom inCode = tcv.createPosition(2);
+        assertEquals(5, inCode.getPosition());
     }
 
     @Test
