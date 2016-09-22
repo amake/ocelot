@@ -41,6 +41,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.xml.stream.XMLStreamException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.vistatec.ocelot.events.OpenFileEvent;
@@ -62,6 +65,8 @@ import com.vistatec.ocelot.xliff.freme.XliffFremeAnnotationWriter;
  * Main Ocelot application context.
  */
 public class OcelotApp implements OcelotEventQueueListener {
+    private static final Logger LOG = LoggerFactory.getLogger(OcelotApp.class);
+
     private final OcelotEventQueue eventQueue;
 
     private final PluginManager pluginManager;
@@ -146,6 +151,9 @@ public class OcelotApp implements OcelotEventQueueListener {
             XliffFremeAnnotationWriter annotationWriter = new XliffFremeAnnotationWriter();
             annotationWriter.saveAnnotations(tmpFile, segmentService);
         } catch (Exception e) {
+            if (!tmpFile.delete()) {
+                LOG.info("Failed to delete temp file: " + tmpFile.getPath());
+            }
             throw new ErrorAlertException("Unable to save!", "The file " + filename
                     + " cannot be saved because the content is invalid. "
                     + "If you edited tags, ensure they are correctly nested.");
