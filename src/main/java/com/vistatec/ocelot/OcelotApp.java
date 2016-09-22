@@ -31,6 +31,9 @@ package com.vistatec.ocelot;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -133,12 +136,24 @@ public class OcelotApp implements OcelotEventQueueListener {
                         "The file " + filename + " can not be saved, because the directory is not writeable.");
             }
         }
-        xliffService.save(openXliffFile, saveFile);
-XliffFremeAnnotationWriter annotationWriter = new XliffFremeAnnotationWriter();
-		annotationWriter.saveAnnotations(saveFile, segmentService);
+        // Save to temp file, then move over actual target. This lets us ensure
+        // the output is well-formed, as we save and then parse again to save
+        // the annotations.
+        Path tmpPath = Files.createTempFile("ocelot", "save");
+        File tmpFile = tmpPath.toFile();
+        xliffService.save(openXliffFile, tmpFile);
+        try {
+            XliffFremeAnnotationWriter annotationWriter = new XliffFremeAnnotationWriter();
+            annotationWriter.saveAnnotations(tmpFile, segmentService);
+        } catch (Exception e) {
+            throw new ErrorAlertException("Unable to save!", "The file " + filename
+                    + " cannot be saved because the content is invalid. "
+                    + "If you edited tags, ensure they are correctly nested.");
+        }
         this.fileDirty = false;
 		editDistService.createEditDistanceReport(saveFile.getName());
         pluginManager.notifySaveFile(filename);
+        Files.move(tmpPath, saveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
     public String getFileSourceLang() {
