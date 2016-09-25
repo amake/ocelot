@@ -643,9 +643,9 @@ public class SegmentTextCell extends JTextPane {
         button.setFocusable(false);
         button.setBorder(new EmptyBorder(4, 4, 4, 4));
         Toolkit kit = Toolkit.getDefaultToolkit();
-        ImageIcon icon = new ImageIcon(kit.getImage(Ocelot.class.getResource("ic_settings_black_18dp.png")));
+        ImageIcon icon = new ImageIcon(kit.getImage(Ocelot.class.getResource("ic_settings_black_14px.png")));
         button.setIcon(icon);
-        ImageIcon pressedIcon = new ImageIcon(kit.getImage(Ocelot.class.getResource("ic_settings_white_18dp.png")));
+        ImageIcon pressedIcon = new ImageIcon(kit.getImage(Ocelot.class.getResource("ic_settings_white_14px.png")));
         button.setPressedIcon(pressedIcon);
         c.add(button, BorderLayout.CENTER);
         button.addActionListener(new ActionListener() {
