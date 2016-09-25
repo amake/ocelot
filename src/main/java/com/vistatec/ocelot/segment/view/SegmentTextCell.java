@@ -62,6 +62,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
 import javax.swing.TransferHandler;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.AbstractDocument;
@@ -640,7 +641,7 @@ public class SegmentTextCell extends JTextPane {
         c.setLayout(new BorderLayout());
         final JButton button = new JButton();
         button.setFocusable(false);
-        button.setBorderPainted(false);
+        button.setBorder(new EmptyBorder(4, 4, 4, 4));
         Toolkit kit = Toolkit.getDefaultToolkit();
         ImageIcon icon = new ImageIcon(kit.getImage(Ocelot.class.getResource("ic_settings_black_18dp.png")));
         button.setIcon(icon);
@@ -693,7 +694,7 @@ public class SegmentTextCell extends JTextPane {
         if (showFrame) {
             Container parent = getParent();
             Point p = parent.getLocationOnScreen();
-            p.translate(parent.getWidth() + 10, 0);
+            p.translate(parent.getWidth() + 4, 0);
             menuFrame.setLocation(p);
         }
     }
