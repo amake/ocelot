@@ -130,16 +130,9 @@ public class OcelotApp implements OcelotEventQueueListener {
         }
 
         String filename = saveFile.getName();
-        if (saveFile.exists()) {
-            if (!saveFile.canWrite()) {
-                throw new ErrorAlertException("Unable to save!",
-                        "The file " + filename + " can not be saved, because the file is not writeable.");
-            }
-        } else {
-            if (!saveFile.createNewFile()) {
-                throw new ErrorAlertException("Unable to save",
-                        "The file " + filename + " can not be saved, because the directory is not writeable.");
-            }
+        if (saveFile.exists() && !saveFile.canWrite()) {
+            throw new ErrorAlertException("Unable to save!",
+                    "The file " + filename + " can not be saved, because the file is not writeable.");
         }
         // Save to temp file, then move over actual target. This lets us ensure
         // the output is well-formed, as we save and then parse again to save
