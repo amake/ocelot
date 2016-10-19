@@ -159,7 +159,7 @@ public class OcelotApp implements OcelotEventQueueListener {
                     + "If you edited tags, ensure they are correctly nested.");
         }
         this.fileDirty = false;
-		editDistService.createEditDistanceReport(saveFile.getName());
+        editDistService.createEditDistanceReport(filename);
         pluginManager.notifySaveFile(filename);
         Files.move(tmpPath, saveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
