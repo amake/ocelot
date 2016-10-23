@@ -33,6 +33,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.awt.HeadlessException;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -61,18 +62,22 @@ public class TestSegmentTextCell {
 
     @Test
     public void testCreateView() {
-        {
-            SegmentTextCell cell = SegmentTextCell.createCell();
-            assertTrue(cell.getText().isEmpty());
-        }
-        {
-            SegmentTextCell cell = SegmentTextCell.createDummyCell();
-            assertTrue(cell.getText().isEmpty());
-        }
-        {
-            SegmentVariant v = newTextContainerVariant();
-            SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
-            assertEquals("A<b1>B</b1>", cell.getText());
+        try {
+            {
+                SegmentTextCell cell = SegmentTextCell.createCell();
+                assertTrue(cell.getText().isEmpty());
+            }
+            {
+                SegmentTextCell cell = SegmentTextCell.createDummyCell();
+                assertTrue(cell.getText().isEmpty());
+            }
+            {
+                SegmentVariant v = newTextContainerVariant();
+                SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
+                assertEquals("A<b1>B</b1>", cell.getText());
+            }
+        } catch (HeadlessException ex) {
+            // Can't perform this test while headless.
         }
     }
 
@@ -81,41 +86,46 @@ public class TestSegmentTextCell {
         // A < b 1 > B < / b 1 >
         // 0 1 2 3 4 5 6 7 8 9 10
 
-        SegmentVariant v = newTextContainerVariant();
-        SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
-        assertEquals("A<b1>B</b1>", cell.getText());
+        try {
+            SegmentVariant v = newTextContainerVariant();
+            SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
+            assertEquals("A<b1>B</b1>", cell.getText());
 
-        TransferHandler handler = cell.getTransferHandler();
+            TransferHandler handler = cell.getTransferHandler();
 
-        cell.setSelectionStart(1);
-        cell.setSelectionEnd(6);
+            cell.setSelectionStart(1);
+            cell.setSelectionEnd(6);
 
-        Clipboard cb = new Clipboard("test");
-        handler.exportToClipboard(cell, cb, TransferHandler.COPY);
+            Clipboard cb = new Clipboard("test");
+            handler.exportToClipboard(cell, cb, TransferHandler.COPY);
 
-        DataFlavor[] flavors = cb.getAvailableDataFlavors();
-        assertEquals(Arrays.asList(SegmentTextCell.SELECTION_FLAVOR, DataFlavor.stringFlavor), Arrays.asList(flavors));
+            DataFlavor[] flavors = cb.getAvailableDataFlavors();
+            assertEquals(Arrays.asList(SegmentTextCell.SELECTION_FLAVOR, DataFlavor.stringFlavor),
+                    Arrays.asList(flavors));
 
-        Transferable transferable = cb.getContents(null);
-        assertTrue(transferable instanceof SegmentVariantTransferable);
+            Transferable transferable = cb.getContents(null);
+            assertTrue(transferable instanceof SegmentVariantTransferable);
 
-        SegmentVariantTransferable svt = (SegmentVariantTransferable) transferable;
+            SegmentVariantTransferable svt = (SegmentVariantTransferable) transferable;
 
-        {
-            Object data = svt.getTransferData(SegmentTextCell.SELECTION_FLAVOR);
-            assertTrue(data instanceof SegmentVariantSelection);
-            SegmentVariantSelection sel = (SegmentVariantSelection) data;
-            assertEquals("<b1>B", sel.getDisplayText());
+            {
+                Object data = svt.getTransferData(SegmentTextCell.SELECTION_FLAVOR);
+                assertTrue(data instanceof SegmentVariantSelection);
+                SegmentVariantSelection sel = (SegmentVariantSelection) data;
+                assertEquals("<b1>B", sel.getDisplayText());
+            }
+            {
+                Object data = svt.getTransferData(DataFlavor.stringFlavor);
+                assertTrue(data instanceof String);
+                assertEquals("<b1>B", (String) data);
+            }
+
+            assertTrue(cell.canStopEditing());
+            assertEquals("A<b1>B</b1>", cell.getText());
+            assertEquals("A<b1>B</b1>", cell.getVariant().getDisplayText());
+        } catch (HeadlessException ex) {
+            // Can't perform this test while headless.
         }
-        {
-            Object data = svt.getTransferData(DataFlavor.stringFlavor);
-            assertTrue(data instanceof String);
-            assertEquals("<b1>B", (String) data);
-        }
-
-        assertTrue(cell.canStopEditing());
-        assertEquals("A<b1>B</b1>", cell.getText());
-        assertEquals("A<b1>B</b1>", cell.getVariant().getDisplayText());
     }
 
     @Test
@@ -123,41 +133,46 @@ public class TestSegmentTextCell {
         // A < p c i d 1 > B <  /  p  c  i  d  1  >
         // 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
 
-        SegmentVariant v = newFragmentVariant();
-        SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
-        assertEquals("A<pcid1>B</pcid1>", cell.getText());
+        try {
+            SegmentVariant v = newFragmentVariant();
+            SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
+            assertEquals("A<pcid1>B</pcid1>", cell.getText());
 
-        TransferHandler handler = cell.getTransferHandler();
+            TransferHandler handler = cell.getTransferHandler();
 
-        cell.setSelectionStart(1);
-        cell.setSelectionEnd(9);
+            cell.setSelectionStart(1);
+            cell.setSelectionEnd(9);
 
-        Clipboard cb = new Clipboard("test");
-        handler.exportToClipboard(cell, cb, TransferHandler.COPY);
+            Clipboard cb = new Clipboard("test");
+            handler.exportToClipboard(cell, cb, TransferHandler.COPY);
 
-        DataFlavor[] flavors = cb.getAvailableDataFlavors();
-        assertEquals(Arrays.asList(SegmentTextCell.SELECTION_FLAVOR, DataFlavor.stringFlavor), Arrays.asList(flavors));
+            DataFlavor[] flavors = cb.getAvailableDataFlavors();
+            assertEquals(Arrays.asList(SegmentTextCell.SELECTION_FLAVOR, DataFlavor.stringFlavor),
+                    Arrays.asList(flavors));
 
-        Transferable transferable = cb.getContents(null);
-        assertTrue(transferable instanceof SegmentVariantTransferable);
+            Transferable transferable = cb.getContents(null);
+            assertTrue(transferable instanceof SegmentVariantTransferable);
 
-        SegmentVariantTransferable svt = (SegmentVariantTransferable) transferable;
+            SegmentVariantTransferable svt = (SegmentVariantTransferable) transferable;
 
-        {
-            Object data = svt.getTransferData(SegmentTextCell.SELECTION_FLAVOR);
-            assertTrue(data instanceof SegmentVariantSelection);
-            SegmentVariantSelection sel = (SegmentVariantSelection) data;
-            assertEquals("<pcid1>B", sel.getDisplayText());
+            {
+                Object data = svt.getTransferData(SegmentTextCell.SELECTION_FLAVOR);
+                assertTrue(data instanceof SegmentVariantSelection);
+                SegmentVariantSelection sel = (SegmentVariantSelection) data;
+                assertEquals("<pcid1>B", sel.getDisplayText());
+            }
+            {
+                Object data = svt.getTransferData(DataFlavor.stringFlavor);
+                assertTrue(data instanceof String);
+                assertEquals("<pcid1>B", (String) data);
+            }
+
+            assertTrue(cell.canStopEditing());
+            assertEquals("A<pcid1>B</pcid1>", cell.getText());
+            assertEquals("A<pcid1>B</pcid1>", cell.getVariant().getDisplayText());
+        } catch (HeadlessException ex) {
+            // Can't perform this test while headless.
         }
-        {
-            Object data = svt.getTransferData(DataFlavor.stringFlavor);
-            assertTrue(data instanceof String);
-            assertEquals("<pcid1>B", (String) data);
-        }
-
-        assertTrue(cell.canStopEditing());
-        assertEquals("A<pcid1>B</pcid1>", cell.getText());
-        assertEquals("A<pcid1>B</pcid1>", cell.getVariant().getDisplayText());
     }
     
     @Test
@@ -165,41 +180,46 @@ public class TestSegmentTextCell {
         // A < b 1 > B < / b 1 >
         // 0 1 2 3 4 5 6 7 8 9 10
 
-        SegmentVariant v = newTextContainerVariant();
-        SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
-        assertEquals("A<b1>B</b1>", cell.getText());
+        try {
+            SegmentVariant v = newTextContainerVariant();
+            SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
+            assertEquals("A<b1>B</b1>", cell.getText());
 
-        TransferHandler handler = cell.getTransferHandler();
+            TransferHandler handler = cell.getTransferHandler();
 
-        cell.setSelectionStart(1);
-        cell.setSelectionEnd(6);
+            cell.setSelectionStart(1);
+            cell.setSelectionEnd(6);
 
-        Clipboard cb = new Clipboard("test");
-        handler.exportToClipboard(cell, cb, TransferHandler.MOVE);
+            Clipboard cb = new Clipboard("test");
+            handler.exportToClipboard(cell, cb, TransferHandler.MOVE);
 
-        DataFlavor[] flavors = cb.getAvailableDataFlavors();
-        assertEquals(Arrays.asList(SegmentTextCell.SELECTION_FLAVOR, DataFlavor.stringFlavor), Arrays.asList(flavors));
+            DataFlavor[] flavors = cb.getAvailableDataFlavors();
+            assertEquals(Arrays.asList(SegmentTextCell.SELECTION_FLAVOR, DataFlavor.stringFlavor),
+                    Arrays.asList(flavors));
 
-        Transferable transferable = cb.getContents(null);
-        assertTrue(transferable instanceof SegmentVariantTransferable);
+            Transferable transferable = cb.getContents(null);
+            assertTrue(transferable instanceof SegmentVariantTransferable);
 
-        SegmentVariantTransferable svt = (SegmentVariantTransferable) transferable;
+            SegmentVariantTransferable svt = (SegmentVariantTransferable) transferable;
 
-        {
-            Object data = svt.getTransferData(SegmentTextCell.SELECTION_FLAVOR);
-            assertTrue(data instanceof SegmentVariantSelection);
-            SegmentVariantSelection sel = (SegmentVariantSelection) data;
-            assertEquals("<b1>B", sel.getDisplayText());
+            {
+                Object data = svt.getTransferData(SegmentTextCell.SELECTION_FLAVOR);
+                assertTrue(data instanceof SegmentVariantSelection);
+                SegmentVariantSelection sel = (SegmentVariantSelection) data;
+                assertEquals("<b1>B", sel.getDisplayText());
+            }
+            {
+                Object data = svt.getTransferData(DataFlavor.stringFlavor);
+                assertTrue(data instanceof String);
+                assertEquals("<b1>B", (String) data);
+            }
+
+            assertFalse(cell.canStopEditing());
+            assertEquals("A</b1>", cell.getText());
+            assertEquals("A</b1>", cell.getVariant().getDisplayText());
+        } catch (HeadlessException ex) {
+            // Can't perform this test while headless.
         }
-        {
-            Object data = svt.getTransferData(DataFlavor.stringFlavor);
-            assertTrue(data instanceof String);
-            assertEquals("<b1>B", (String) data);
-        }
-
-        assertFalse(cell.canStopEditing());
-        assertEquals("A</b1>", cell.getText());
-        assertEquals("A</b1>", cell.getVariant().getDisplayText());
     }
 
     @Test
@@ -207,41 +227,46 @@ public class TestSegmentTextCell {
         // A < p c i d 1 > B <  /  p  c  i  d  1  >
         // 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
 
-        SegmentVariant v = newFragmentVariant();
-        SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
-        assertEquals("A<pcid1>B</pcid1>", cell.getText());
+        try {
+            SegmentVariant v = newFragmentVariant();
+            SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
+            assertEquals("A<pcid1>B</pcid1>", cell.getText());
 
-        TransferHandler handler = cell.getTransferHandler();
+            TransferHandler handler = cell.getTransferHandler();
 
-        cell.setSelectionStart(1);
-        cell.setSelectionEnd(9);
+            cell.setSelectionStart(1);
+            cell.setSelectionEnd(9);
 
-        Clipboard cb = new Clipboard("test");
-        handler.exportToClipboard(cell, cb, TransferHandler.MOVE);
+            Clipboard cb = new Clipboard("test");
+            handler.exportToClipboard(cell, cb, TransferHandler.MOVE);
 
-        DataFlavor[] flavors = cb.getAvailableDataFlavors();
-        assertEquals(Arrays.asList(SegmentTextCell.SELECTION_FLAVOR, DataFlavor.stringFlavor), Arrays.asList(flavors));
+            DataFlavor[] flavors = cb.getAvailableDataFlavors();
+            assertEquals(Arrays.asList(SegmentTextCell.SELECTION_FLAVOR, DataFlavor.stringFlavor),
+                    Arrays.asList(flavors));
 
-        Transferable transferable = cb.getContents(null);
-        assertTrue(transferable instanceof SegmentVariantTransferable);
+            Transferable transferable = cb.getContents(null);
+            assertTrue(transferable instanceof SegmentVariantTransferable);
 
-        SegmentVariantTransferable svt = (SegmentVariantTransferable) transferable;
+            SegmentVariantTransferable svt = (SegmentVariantTransferable) transferable;
 
-        {
-            Object data = svt.getTransferData(SegmentTextCell.SELECTION_FLAVOR);
-            assertTrue(data instanceof SegmentVariantSelection);
-            SegmentVariantSelection sel = (SegmentVariantSelection) data;
-            assertEquals("<pcid1>B", sel.getDisplayText());
+            {
+                Object data = svt.getTransferData(SegmentTextCell.SELECTION_FLAVOR);
+                assertTrue(data instanceof SegmentVariantSelection);
+                SegmentVariantSelection sel = (SegmentVariantSelection) data;
+                assertEquals("<pcid1>B", sel.getDisplayText());
+            }
+            {
+                Object data = svt.getTransferData(DataFlavor.stringFlavor);
+                assertTrue(data instanceof String);
+                assertEquals("<pcid1>B", (String) data);
+            }
+
+            assertFalse(cell.canStopEditing());
+            assertEquals("A</pcid1>", cell.getText());
+            assertEquals("A</pcid1>", cell.getVariant().getDisplayText());
+        } catch (HeadlessException ex) {
+            // Can't perform this test while headless.
         }
-        {
-            Object data = svt.getTransferData(DataFlavor.stringFlavor);
-            assertTrue(data instanceof String);
-            assertEquals("<pcid1>B", (String) data);
-        }
-
-        assertFalse(cell.canStopEditing());
-        assertEquals("A</pcid1>", cell.getText());
-        assertEquals("A</pcid1>", cell.getVariant().getDisplayText());
     }
 
     @Test
@@ -249,35 +274,39 @@ public class TestSegmentTextCell {
         // A < b 1 > B < / b 1 >
         // 0 1 2 3 4 5 6 7 8 9 10
 
-        SegmentVariant v = newTextContainerVariant();
-        SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
+        try {
+            SegmentVariant v = newTextContainerVariant();
+            SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
 
-        TransferHandler handler = cell.getTransferHandler();
+            TransferHandler handler = cell.getTransferHandler();
 
-        cell.setSelectionStart(1);
-        cell.setSelectionEnd(6);
+            cell.setSelectionStart(1);
+            cell.setSelectionEnd(6);
 
-        Clipboard cb = new Clipboard("test");
-        handler.exportToClipboard(cell, cb, TransferHandler.COPY);
+            Clipboard cb = new Clipboard("test");
+            handler.exportToClipboard(cell, cb, TransferHandler.COPY);
 
-        // Paste target is the same row; tags will be preserved.
-        Transferable transferable = cb.getContents(null);
-        TransferSupport support = new TransferSupport(cell, transferable);
+            // Paste target is the same row; tags will be preserved.
+            Transferable transferable = cb.getContents(null);
+            TransferSupport support = new TransferSupport(cell, transferable);
 
-        cell.setCaretPosition(1);
-        assertTrue(handler.canImport(support));
-        assertTrue(handler.importData(support));
-        assertFalse(cell.canStopEditing());
-        assertEquals("A<b1>B<b1>B</b1>", cell.getText());
-        assertEquals("A<b1>B<b1>B</b1>", cell.getVariant().getDisplayText());
+            cell.setCaretPosition(1);
+            assertTrue(handler.canImport(support));
+            assertTrue(handler.importData(support));
+            assertFalse(cell.canStopEditing());
+            assertEquals("A<b1>B<b1>B</b1>", cell.getText());
+            assertEquals("A<b1>B<b1>B</b1>", cell.getVariant().getDisplayText());
 
-        // Paste into the middle of a tag.
-        cell.setCaretPosition(2);
-        assertTrue(handler.canImport(support));
-        assertFalse(handler.importData(support));
-        assertFalse(cell.canStopEditing());
-        assertEquals("A<b1>B<b1>B</b1>", cell.getText());
-        assertEquals("A<b1>B<b1>B</b1>", cell.getVariant().getDisplayText());
+            // Paste into the middle of a tag.
+            cell.setCaretPosition(2);
+            assertTrue(handler.canImport(support));
+            assertFalse(handler.importData(support));
+            assertFalse(cell.canStopEditing());
+            assertEquals("A<b1>B<b1>B</b1>", cell.getText());
+            assertEquals("A<b1>B<b1>B</b1>", cell.getVariant().getDisplayText());
+        } catch (HeadlessException ex) {
+            // Can't perform this test while headless.
+        }
     }
 
     @Test
@@ -285,35 +314,39 @@ public class TestSegmentTextCell {
         // A < p c i d 1 > B < / p c i d 1 >
         // 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
 
-        SegmentVariant v = newFragmentVariant();
-        SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
+        try {
+            SegmentVariant v = newFragmentVariant();
+            SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
 
-        TransferHandler handler = cell.getTransferHandler();
+            TransferHandler handler = cell.getTransferHandler();
 
-        cell.setSelectionStart(1);
-        cell.setSelectionEnd(9);
+            cell.setSelectionStart(1);
+            cell.setSelectionEnd(9);
 
-        Clipboard cb = new Clipboard("test");
-        handler.exportToClipboard(cell, cb, TransferHandler.COPY);
+            Clipboard cb = new Clipboard("test");
+            handler.exportToClipboard(cell, cb, TransferHandler.COPY);
 
-        // Paste target is the same row; tags will be preserved.
-        Transferable transferable = cb.getContents(null);
-        TransferSupport support = new TransferSupport(cell, transferable);
+            // Paste target is the same row; tags will be preserved.
+            Transferable transferable = cb.getContents(null);
+            TransferSupport support = new TransferSupport(cell, transferable);
 
-        cell.setCaretPosition(1);
-        assertTrue(handler.canImport(support));
-        assertTrue(handler.importData(support));
-        assertFalse(cell.canStopEditing());
-        assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell.getText());
-        assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell.getVariant().getDisplayText());
+            cell.setCaretPosition(1);
+            assertTrue(handler.canImport(support));
+            assertTrue(handler.importData(support));
+            assertFalse(cell.canStopEditing());
+            assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell.getText());
+            assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell.getVariant().getDisplayText());
 
-        // Paste into the middle of a tag.
-        cell.setCaretPosition(2);
-        assertTrue(handler.canImport(support));
-        assertFalse(handler.importData(support));
-        assertFalse(cell.canStopEditing());
-        assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell.getText());
-        assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell.getVariant().getDisplayText());
+            // Paste into the middle of a tag.
+            cell.setCaretPosition(2);
+            assertTrue(handler.canImport(support));
+            assertFalse(handler.importData(support));
+            assertFalse(cell.canStopEditing());
+            assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell.getText());
+            assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell.getVariant().getDisplayText());
+        } catch (HeadlessException ex) {
+            // Can't perform this test while headless.
+        }
     }
 
     @Test
@@ -321,38 +354,43 @@ public class TestSegmentTextCell {
         // A < b 1 > B < / b 1 >
         // 0 1 2 3 4 5 6 7 8 9 10
 
-        SegmentVariant v = newTextContainerVariant();
-        SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
+        try {
+            SegmentVariant v = newTextContainerVariant();
+            SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
 
-        TransferHandler handler = cell.getTransferHandler();
+            TransferHandler handler = cell.getTransferHandler();
 
-        cell.setSelectionStart(1);
-        cell.setSelectionEnd(6);
+            cell.setSelectionStart(1);
+            cell.setSelectionEnd(6);
 
-        Clipboard cb = new Clipboard("test");
-        handler.exportToClipboard(cell, cb, TransferHandler.COPY);
+            Clipboard cb = new Clipboard("test");
+            handler.exportToClipboard(cell, cb, TransferHandler.COPY);
 
-        // Paste target is a different row; tags will be reduced to plain text.
-        SegmentVariant v2 = newTextContainerVariant();
-        SegmentTextCell cell2 = SegmentTextCell.createCell(1, v2, false, false);
+            // Paste target is a different row; tags will be reduced to plain
+            // text.
+            SegmentVariant v2 = newTextContainerVariant();
+            SegmentTextCell cell2 = SegmentTextCell.createCell(1, v2, false, false);
 
-        Transferable transferable = cb.getContents(null);
-        TransferSupport support = new TransferSupport(cell2, transferable);
+            Transferable transferable = cb.getContents(null);
+            TransferSupport support = new TransferSupport(cell2, transferable);
 
-        cell2.setCaretPosition(1);
-        assertTrue(handler.canImport(support));
-        assertTrue(handler.importData(support));
-        assertTrue(cell2.canStopEditing());
-        assertEquals("A<b1>B<b1>B</b1>", cell2.getText());
-        assertEquals("A<b1>B<b1>B</b1>", cell2.getVariant().getDisplayText());
+            cell2.setCaretPosition(1);
+            assertTrue(handler.canImport(support));
+            assertTrue(handler.importData(support));
+            assertTrue(cell2.canStopEditing());
+            assertEquals("A<b1>B<b1>B</b1>", cell2.getText());
+            assertEquals("A<b1>B<b1>B</b1>", cell2.getVariant().getDisplayText());
 
-        // Paste into the middle of a tag.
-        cell2.setCaretPosition(7);
-        assertTrue(handler.canImport(support));
-        assertFalse(handler.importData(support));
-        assertTrue(cell2.canStopEditing());
-        assertEquals("A<b1>B<b1>B</b1>", cell2.getText());
-        assertEquals("A<b1>B<b1>B</b1>", cell2.getVariant().getDisplayText());
+            // Paste into the middle of a tag.
+            cell2.setCaretPosition(7);
+            assertTrue(handler.canImport(support));
+            assertFalse(handler.importData(support));
+            assertTrue(cell2.canStopEditing());
+            assertEquals("A<b1>B<b1>B</b1>", cell2.getText());
+            assertEquals("A<b1>B<b1>B</b1>", cell2.getVariant().getDisplayText());
+        } catch (HeadlessException ex) {
+            // Can't perform this test while headless.
+        }
     }
 
     @Test
@@ -360,79 +398,90 @@ public class TestSegmentTextCell {
         // A < p c i d 1 > B < / p c i d 1 >
         // 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
 
-        SegmentVariant v = newFragmentVariant();
-        SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
+        try {
+            SegmentVariant v = newFragmentVariant();
+            SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
 
-        TransferHandler handler = cell.getTransferHandler();
+            TransferHandler handler = cell.getTransferHandler();
 
-        cell.setSelectionStart(1);
-        cell.setSelectionEnd(9);
+            cell.setSelectionStart(1);
+            cell.setSelectionEnd(9);
 
-        Clipboard cb = new Clipboard("test");
-        handler.exportToClipboard(cell, cb, TransferHandler.COPY);
+            Clipboard cb = new Clipboard("test");
+            handler.exportToClipboard(cell, cb, TransferHandler.COPY);
 
-        // Paste target is a different row; tags will be reduced to plain text.
-        SegmentVariant v2 = newFragmentVariant();
-        SegmentTextCell cell2 = SegmentTextCell.createCell(1, v2, false, false);
+            // Paste target is a different row; tags will be reduced to plain
+            // text.
+            SegmentVariant v2 = newFragmentVariant();
+            SegmentTextCell cell2 = SegmentTextCell.createCell(1, v2, false, false);
 
-        Transferable transferable = cb.getContents(null);
-        TransferSupport support = new TransferSupport(cell2, transferable);
+            Transferable transferable = cb.getContents(null);
+            TransferSupport support = new TransferSupport(cell2, transferable);
 
-        cell2.setCaretPosition(1);
-        assertTrue(handler.canImport(support));
-        assertTrue(handler.importData(support));
-        assertTrue(cell2.canStopEditing());
-        assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell2.getText());
-        assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell2.getVariant().getDisplayText());
+            cell2.setCaretPosition(1);
+            assertTrue(handler.canImport(support));
+            assertTrue(handler.importData(support));
+            assertTrue(cell2.canStopEditing());
+            assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell2.getText());
+            assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell2.getVariant().getDisplayText());
 
-        // Paste into the middle of a tag.
-        cell2.setCaretPosition(11);
-        assertTrue(handler.canImport(support));
-        assertFalse(handler.importData(support));
-        assertTrue(cell2.canStopEditing());
-        assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell2.getText());
-        assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell2.getVariant().getDisplayText());
+            // Paste into the middle of a tag.
+            cell2.setCaretPosition(11);
+            assertTrue(handler.canImport(support));
+            assertFalse(handler.importData(support));
+            assertTrue(cell2.canStopEditing());
+            assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell2.getText());
+            assertEquals("A<pcid1>B<pcid1>B</pcid1>", cell2.getVariant().getDisplayText());
+        } catch (HeadlessException ex) {
+            // Can't perform this test while headless.
+        }
     }
-    
+
     @Test
     public void testPasteToWrongVariantType() throws Exception {
         // A < p c i d 1 > B < / p c i d 1 >
         // 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
 
-        SegmentVariant v = newFragmentVariant();
-        SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
+        try {
+            SegmentVariant v = newFragmentVariant();
+            SegmentTextCell cell = SegmentTextCell.createCell(0, v, false, false);
 
-        TransferHandler handler = cell.getTransferHandler();
+            TransferHandler handler = cell.getTransferHandler();
 
-        cell.setSelectionStart(1);
-        cell.setSelectionEnd(9);
+            cell.setSelectionStart(1);
+            cell.setSelectionEnd(9);
 
-        Clipboard cb = new Clipboard("test");
-        handler.exportToClipboard(cell, cb, TransferHandler.COPY);
+            Clipboard cb = new Clipboard("test");
+            handler.exportToClipboard(cell, cb, TransferHandler.COPY);
 
-        // Paste target is the same row but a different variant type, so tags
-        // will be reduced to plain text. This can't happen the way Ocelot works
-        // currently, but it's better to be safe than sorry.
-        SegmentVariant v2 = newTextContainerVariant();
-        SegmentTextCell cell2 = SegmentTextCell.createCell(0, v2, false, false);
+            // Paste target is the same row but a different variant type, so
+            // tags
+            // will be reduced to plain text. This can't happen the way Ocelot
+            // works
+            // currently, but it's better to be safe than sorry.
+            SegmentVariant v2 = newTextContainerVariant();
+            SegmentTextCell cell2 = SegmentTextCell.createCell(0, v2, false, false);
 
-        Transferable transferable = cb.getContents(null);
-        TransferSupport support = new TransferSupport(cell2, transferable);
+            Transferable transferable = cb.getContents(null);
+            TransferSupport support = new TransferSupport(cell2, transferable);
 
-        cell2.setCaretPosition(1);
-        assertTrue(handler.canImport(support));
-        assertTrue(handler.importData(support));
-        assertTrue(cell2.canStopEditing());
-        assertEquals("A<pcid1>B<b1>B</b1>", cell2.getText());
-        assertEquals("A<pcid1>B<b1>B</b1>", cell2.getVariant().getDisplayText());
+            cell2.setCaretPosition(1);
+            assertTrue(handler.canImport(support));
+            assertTrue(handler.importData(support));
+            assertTrue(cell2.canStopEditing());
+            assertEquals("A<pcid1>B<b1>B</b1>", cell2.getText());
+            assertEquals("A<pcid1>B<b1>B</b1>", cell2.getVariant().getDisplayText());
 
-        // Paste into the middle of a tag.
-        cell2.setCaretPosition(11);
-        assertTrue(handler.canImport(support));
-        assertFalse(handler.importData(support));
-        assertTrue(cell2.canStopEditing());
-        assertEquals("A<pcid1>B<b1>B</b1>", cell2.getText());
-        assertEquals("A<pcid1>B<b1>B</b1>", cell2.getVariant().getDisplayText());
+            // Paste into the middle of a tag.
+            cell2.setCaretPosition(11);
+            assertTrue(handler.canImport(support));
+            assertFalse(handler.importData(support));
+            assertTrue(cell2.canStopEditing());
+            assertEquals("A<pcid1>B<b1>B</b1>", cell2.getText());
+            assertEquals("A<pcid1>B<b1>B</b1>", cell2.getVariant().getDisplayText());
+        } catch (HeadlessException ex) {
+            // Can't perform this test while headless.
+        }
     }
 
     private TextContainerVariant newTextContainerVariant() {
