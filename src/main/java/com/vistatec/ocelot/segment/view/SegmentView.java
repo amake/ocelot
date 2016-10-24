@@ -1222,9 +1222,10 @@ public class SegmentView extends JScrollPane implements RuleListener,
 
 					        @Override
 					        public void actionPerformed(ActionEvent e) {
-						        fireEditingStopped();
-						        eventQueue.post(new OcelotEditingEvent(
-						                OcelotEditingEvent.Type.STOP_EDITING));
+                                if (stopCellEditing()) {
+                                    fireEditingStopped();
+                                    eventQueue.post(new OcelotEditingEvent(OcelotEditingEvent.Type.STOP_EDITING));
+                                }
 					        }
 				        });
 				editingRow = row;
