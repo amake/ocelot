@@ -208,9 +208,6 @@ protected List<HighlightData> highlightDataList;
 	public void replaceSelection(int selectionStart, int selectionEnd,
 			SegmentVariantSelection rsv) {
 
-        System.out.println("Replacing " + getDisplayText().substring(selectionStart, selectionEnd) + " with "
-                + rsv.getDisplayText());
-
 		BaseSegmentVariant sv = (BaseSegmentVariant) rsv.getVariant(); 
 		List<SegmentAtom> replaceAtoms = sv.getAtomsForRange(
 				rsv.getSelectionStart(),
@@ -256,8 +253,6 @@ protected List<HighlightData> highlightDataList;
 //			}
 //		}
 //		setAtoms(cleanedAtoms);
-
-        System.out.println("Result: " + getDisplayText());
 	}
 
     @Override

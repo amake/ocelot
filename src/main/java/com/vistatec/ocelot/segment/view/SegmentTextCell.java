@@ -249,8 +249,6 @@ public class SegmentTextCell extends JTextPane {
         StyledDocument doc = this.getStyledDocument();
         try {
             for (int i = 0; i < styledText.size(); i += 2) {
-                System.out.println("Inserting " + styledText.get(i) + " at " + doc.getLength() + " with style "
-                        + styledText.get(i + 1));
                 doc.insertString(doc.getLength(), styledText.get(i),
                         doc.getStyle(styledText.get(i + 1)));
             }
@@ -414,7 +412,6 @@ public class SegmentTextCell extends JTextPane {
 
         @Override
         protected void exportDone(JComponent source, Transferable data, int action) {
-            System.out.println("exportDone: " + data);
             SegmentTextCell cell = (SegmentTextCell) source;
             if (shouldRemove && action == TransferHandler.MOVE) {
                 // Only clear the original selection here if we didn't
@@ -426,7 +423,6 @@ public class SegmentTextCell extends JTextPane {
 
         @Override
         public boolean canImport(TransferSupport support) {
-            System.out.println("canImport: " + support);
             return support.isDataFlavorSupported(SELECTION_FLAVOR)
                     || support.isDataFlavorSupported(DataFlavor.stringFlavor);
         }
@@ -436,7 +432,6 @@ public class SegmentTextCell extends JTextPane {
             if (!canImport(support)) {
                 return false;
             }
-            System.out.println("importData: " + support);
             SegmentTextCell cell = (SegmentTextCell) support.getComponent();
             if (support.isDataFlavorSupported(SELECTION_FLAVOR)) {
                 return importSegmentVariantSelection(cell, support);
@@ -489,7 +484,6 @@ public class SegmentTextCell extends JTextPane {
             try {
                 Transferable trfr = support.getTransferable();
                 String str = trfr.getTransferData(DataFlavor.stringFlavor).toString();
-                System.out.println("Replacing " + cell.getSelectedText() + " with string " + str);
                 int start, end;
                 if (support.isDrop()) {
                     Point p = support.getDropLocation().getDropPoint();
@@ -529,7 +523,6 @@ public class SegmentTextCell extends JTextPane {
             this.start = source.createPosition(start);
             this.end = source.createPosition(end);
             this.selection = new SegmentVariantSelection(id, source.createCopy(), start, end);
-            System.out.println("Made transferable: " + selection.getDisplayText());
         }
 
         void removeText() {
@@ -615,7 +608,6 @@ public class SegmentTextCell extends JTextPane {
     }
 
     void prepareEditingUI() {
-        System.out.println("Preparing editing UI");
         menuFrame = new JFrame();
         menuFrame.setUndecorated(true);
         menuFrame.setAlwaysOnTop(true);
